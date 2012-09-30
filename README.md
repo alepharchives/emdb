@@ -12,7 +12,12 @@ But this module could also be used as a general key-value store to replace:
 * Erlang R14B04+* GCC 4.2+ or MS VisualStudio 2010+Build-----$ makeAPI---
 The following functions were implemented:
 
-* `open/1`: creates a new MDB database. This call also re-open an already existing one.
+* `open/1`: equivalent to `emdb:open(DirName, 10485760)`.
+* `open/1`: equivalent to `emdb:open(DirName, 10485760, 0)`.
+* `open/3`: creates a new MDB database. This call also re-open an already existing one. Arguments are:
+	* DirName: database directory name
+	* MapSize: database map size (see [map.hrl](http://gitorious.org/mdb/mdb/blobs/master/libraries/libmdb/mdb.h))
+	* EnvFlags: database environment flags (see [map.hrl](http://gitorious.org/mdb/mdb/blobs/master/libraries/libmdb/mdb.h)). The possible values are defined in **emdb.hrl**.
 * `close/2`: closes the database
 * `put/2`: inserts Key with value Val into the database. Assumes that the key is not present, 'key_exit' is returned otherwise.
 * `get/1`: retrieves the value stored with Key in the database.
@@ -58,9 +63,15 @@ $ ./start.sh
 
 	%% close the database	16> ok = Handle:close().
 
+	...
+
 	17> q().  
   
 
+####Note:
+This code below create a new database with **80GB** MapSize, **avoid fsync**
+after each commit (for max speed) and use the experimental **MDB_FIXEDMAP**.	{ok, Handle} = emdb:open("/tmp/emdb2", 85899345920, ?MDB_NOSYNC bor ?MDB_FIXEDMAP).
+	
 Performance-----------For maximum speed, this library use only binaries for both keys and values.
 See the impressive [microbench](http://highlandsun.com/hyc/mdb/microbench/) against:
 

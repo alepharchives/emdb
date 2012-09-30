@@ -65,6 +65,7 @@ static struct emdb_map_t * emdb_map = NULL;
 
 /* emdb errors */
 #define EMDB_MALLOC_ERR              "error_malloc"
+#define EMDB_MAKE_BINARY_ERR         "error_make_binary"
 #define EMDB_CREATE_ERR              "error_create"
 #define EMDB_MAPSIZE_ERR             "error_mapsize"
 #define EMDB_OPEN_ERR                "error_open"
@@ -100,20 +101,28 @@ static ERL_NIF_TERM emdb_open_nif (ErlNifEnv * env,
   struct emdb_map_t * node;
   MDB_txn * txn;
   char * err;
+  ErlNifUInt64 mapsize;
+  ErlNifUInt64 envflags;
 
   if (enif_get_string(env, argv[0], dirname, MAXPATHLEN, ERL_NIF_LATIN1) <= 0)
     return enif_make_badarg(env);
-
+  
   if(! (node = calloc(1, sizeof(struct emdb_map_t))))
     FAIL_FAST(EMDB_MALLOC_ERR, err3);
   
   if (mdb_env_create(& (node -> env)))
     FAIL_FAST(EMDB_CREATE_ERR, err2);
   
-  if (mdb_env_set_mapsize(node -> env, 10485760))
+  if (! enif_get_uint64(env, argv[1], & mapsize))
+    return enif_make_badarg(env);
+
+  if (mdb_env_set_mapsize(node -> env, mapsize))
     FAIL_FAST(EMDB_MAPSIZE_ERR, err2);
       
-  if (mdb_env_open(node -> env, dirname, MDB_FIXEDMAP, 0664))
+  if (! enif_get_uint64(env, argv[2], & envflags))
+    return enif_make_badarg(env);
+
+  if (mdb_env_open(node -> env, dirname, envflags, 0664))
     FAIL_FAST(EMDB_OPEN_ERR, err2);
 
   if (mdb_txn_begin(node -> env, NULL, 0, & txn))
@@ -209,7 +218,7 @@ static ERL_NIF_TERM emdb_put_nif (ErlNifEnv * env,
   ret = mdb_put(txn, node -> dbi, & mkey, & mdata, MDB_NOOVERWRITE);
   if (MDB_KEYEXIST == ret)
     FAIL_FAST(EMDB_RET_KEY_EXIST, err1);
-   if (ret)
+  if (ret)
     FAIL_FAST(EMDB_PUT_ERR, err1);
 
   if (mdb_txn_commit(txn))
@@ -229,6 +238,7 @@ static ERL_NIF_TERM emdb_get_nif (ErlNifEnv * env,
 {
   ErlNifBinary key;
   ErlNifBinary val;
+/*   ERL_NIF_TERM term; */
 
   MDB_val mkey;
   MDB_val mdata;
@@ -265,7 +275,7 @@ static ERL_NIF_TERM emdb_get_nif (ErlNifEnv * env,
     }
 
   if (! enif_alloc_binary(mdata.mv_size, & val))
-    FAIL_FAST(EMDB_MALLOC_ERR, err2);
+      FAIL_FAST(EMDB_MALLOC_ERR, err2);
 
   memcpy(val.data, mdata.mv_data, mdata.mv_size);
 
@@ -274,6 +284,16 @@ static ERL_NIF_TERM emdb_get_nif (ErlNifEnv * env,
   return enif_make_tuple(env, 2,
                          atom_ok,
                          enif_make_binary(env, & val));
+
+/*   val.size = mdata.mv_size; */
+/*   val.data = mdata.mv_data; */
+  
+/*   mdb_txn_abort(txn); */
+
+/*   return enif_make_tuple(env, 2, */
+/*                          atom_ok, */
+/*                          term); */
+
 
  err2:
   mdb_txn_abort(txn);
@@ -451,7 +471,7 @@ static void emdb_unload(ErlNifEnv* env, void* priv)
 
 
 static ErlNifFunc nif_funcs [] = {
-  {"open",        1, emdb_open_nif},
+  {"open",        3, emdb_open_nif},
   {"close",       1, emdb_close_nif},
   {"put",         3, emdb_put_nif},
   {"get",         2, emdb_get_nif},

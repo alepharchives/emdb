@@ -32,19 +32,23 @@
 %% EXPORTS
 %%====================================================================
 -export([
-         open/1
+         open/1,
+         open/2,
+         open/3
         ]).
 
 
 %%====================================================================
-%% Types
+%% Includes
 %%====================================================================
--record(emdb_oop, {
-          handle :: non_neg_integer()
-         }).
+-include("emdb.hrl").
 
 
-    
+%%====================================================================
+%% Macros
+%%====================================================================
+-define(MDB_MAP_SIZE, 10485760). %% 10MB
+
 %%====================================================================
 %% PUBLIC API
 %%====================================================================
@@ -53,12 +57,14 @@
 %% @doc Create a new MDB database
 %% @end
 %%--------------------------------------------------------------------
--spec open(file:name()) -> #emdb_oop{}.
 open(DirName) ->
+    open(DirName, ?MDB_MAP_SIZE).
+open(DirName, MapSize) when is_integer(MapSize) andalso MapSize > 0 ->
+    open(DirName, MapSize, 0).
+open(DirName, MapSize, EnvFlags) when is_integer(MapSize) andalso MapSize > 0 andalso is_integer(EnvFlags) andalso EnvFlags >= 0 ->
     %% ensure directory exists
     ok = filelib:ensure_dir(DirName ++ "/"),
-    decorate(emdb_drv:open(DirName)).
-
+    decorate(emdb_drv:open(DirName, MapSize, EnvFlags)).
 
 %%====================================================================
 %% PRIVATE API
