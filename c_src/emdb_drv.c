@@ -65,7 +65,6 @@ static struct emdb_map_t * emdb_map = NULL;
 
 /* emdb errors */
 #define EMDB_MALLOC_ERR              "error_malloc"
-#define EMDB_MAKE_BINARY_ERR         "error_make_binary"
 #define EMDB_CREATE_ERR              "error_create"
 #define EMDB_MAPSIZE_ERR             "error_mapsize"
 #define EMDB_OPEN_ERR                "error_open"
@@ -237,8 +236,8 @@ static ERL_NIF_TERM emdb_get_nif (ErlNifEnv * env,
                                   int argc, const ERL_NIF_TERM argv[])
 {
   ErlNifBinary key;
-  ErlNifBinary val;
-/*   ERL_NIF_TERM term; */
+  ErlNifBinary val = {0};
+  ERL_NIF_TERM term;
 
   MDB_val mkey;
   MDB_val mdata;
@@ -274,26 +273,16 @@ static ERL_NIF_TERM emdb_get_nif (ErlNifEnv * env,
       return atom_none;
     }
 
-  if (! enif_alloc_binary(mdata.mv_size, & val))
-      FAIL_FAST(EMDB_MALLOC_ERR, err2);
-
-  memcpy(val.data, mdata.mv_data, mdata.mv_size);
+  val.size = mdata.mv_size;
+  val.data = mdata.mv_data;
+  
+  term = enif_make_binary(env, &val);
 
   mdb_txn_abort(txn);
 
   return enif_make_tuple(env, 2,
                          atom_ok,
-                         enif_make_binary(env, & val));
-
-/*   val.size = mdata.mv_size; */
-/*   val.data = mdata.mv_data; */
-  
-/*   mdb_txn_abort(txn); */
-
-/*   return enif_make_tuple(env, 2, */
-/*                          atom_ok, */
-/*                          term); */
-
+                         term);
 
  err2:
   mdb_txn_abort(txn);

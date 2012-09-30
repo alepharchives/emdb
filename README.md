@@ -70,7 +70,7 @@ $ ./start.sh
   
 
 ####Note:
-The code below create a new database with **80GB** MapSize, **avoid fsync**
+The code below creates a new database with **80GB** MapSize, **avoid fsync**
 after each commit (for max speed) and use the experimental **MDB_FIXEDMAP**.	{ok, Handle} = emdb:open("/tmp/emdb2", 85899345920, ?MDB_NOSYNC bor ?MDB_FIXEDMAP).
 	
 Performance-----------For maximum speed, this library use only binaries for both keys and values.
