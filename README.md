@@ -13,7 +13,7 @@ But this module could also be used as a general key-value store to replace:
 The following functions were implemented:
 
 * `open/1`: equivalent to `emdb:open(DirName, 10485760)`.
-* `open/1`: equivalent to `emdb:open(DirName, 10485760, 0)`.
+* `open/2`: equivalent to `emdb:open(DirName, 10485760, 0)`.
 * `open/3`: creates a new MDB database. This call also re-open an already existing one. Arguments are:
 	* DirName: database directory name
 	* MapSize: database map size (see [map.hrl](http://gitorious.org/mdb/mdb/blobs/master/libraries/libmdb/mdb.h))
@@ -50,7 +50,8 @@ $ ./start.sh
 	9> none = Handle:get(<<"b">>).
 
 	%% delete a non-existing key <<"z">>	10> none = Handle:del(<<"z">>).
-	11> {ok, <<"1">>} = Handle:get(<<"a">>).
+
+	%% ensure key <<"a">>'s value is still <<"1">>	11> {ok, <<"1">>} = Handle:get(<<"a">>).
 	%% update the value for key <<"a">>
 	12> ok = Handle:update(<<"a">>, <<"7">>).
 
