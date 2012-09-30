@@ -12,7 +12,7 @@ But this module could also be used as a general key-value store to replace:
 * Erlang R14B04+* GCC 4.2+ or MS VisualStudio 2010+Build-----$ makeAPI---
 The following functions were implemented:
 
-* `open/2`: creates a new MDB database. This call also re-open an already existing one.
+* `open/1`: creates a new MDB database. This call also re-open an already existing one.
 * `close/2`: closes the database
 * `put/2`: inserts Key with value Val into the database. Assumes that the key is not present, 'key_exit' is returned otherwise.
 * `get/1`: retrieves the value stored with Key in the database.
