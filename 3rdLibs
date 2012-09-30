@@ -1,0 +1,8 @@
+o MDB: http://highlandsun.com/hyc/mdb/
+  source : from OpenLDAP git repository
+  commit : 7333b6bdc90c49c332d4728c62c7904e64c95077
+  license: OpenLDAP Public License
+
+o UTHash: http://uthash.sourceforge.net/
+  version: 1.9.6
+  license: BSD revised

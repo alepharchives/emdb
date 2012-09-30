@@ -1,0 +1,11 @@
+{application, emdb,
+ [
+  {description, "Memory-Mapped Database"},
+  {vsn, "0.9.0"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {env, []}
+ ]}.
