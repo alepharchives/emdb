@@ -132,7 +132,7 @@ static ERL_NIF_TERM emdb_open_nif (ErlNifEnv * env,
     FAIL_FAST(EMDB_OPEN_DBI_ERR, err1);
 
   if (mdb_txn_commit(txn))
-    FAIL_FAST(EMDB_TXN_COMMIT_ERR, err1);
+    FAIL_FAST(EMDB_TXN_COMMIT_ERR, err2);
 
   HASH_ADD_PTR(emdb_map, env, node);
 
@@ -222,7 +222,7 @@ static ERL_NIF_TERM emdb_put_nif (ErlNifEnv * env,
     FAIL_FAST(EMDB_PUT_ERR, err1);
 
   if (mdb_txn_commit(txn))
-    FAIL_FAST(EMDB_TXN_COMMIT_ERR, err1);
+    FAIL_FAST(EMDB_TXN_COMMIT_ERR, err2);
   
   return atom_ok;
 
@@ -383,7 +383,7 @@ static ERL_NIF_TERM emdb_update_nif (ErlNifEnv * env,
     FAIL_FAST(EMDB_UPDATE_ERR, err1);
 
   if (mdb_txn_commit(txn))
-    FAIL_FAST(EMDB_TXN_COMMIT_ERR, err1);
+    FAIL_FAST(EMDB_TXN_COMMIT_ERR, err2);
 
   return atom_ok;
 
@@ -421,7 +421,7 @@ static ERL_NIF_TERM emdb_drop_nif (ErlNifEnv * env,
     FAIL_FAST(EMDB_DROP_ERR, err1);
 
   if (mdb_txn_commit(txn))
-    FAIL_FAST(EMDB_TXN_COMMIT_ERR, err1);
+    FAIL_FAST(EMDB_TXN_COMMIT_ERR, err2);
 
   return atom_ok;
 
